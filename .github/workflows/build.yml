@@ -6,11 +6,9 @@ on:
 
 jobs:
   build:
-    # 使用一个更通用的旧版本 Ubuntu 环境进行编译
     runs-on: ubuntu-20.04
 
     steps:
-      # ... 后面的内容保持不变 ...
       - uses: actions/checkout@v4
 
       - name: Install system dependencies
@@ -22,8 +20,9 @@ jobs:
           toolchain: 1.85.0
           override: true
 
+      # 在编译命令后添加 -vv 参数以获取详细日志
       - name: Build
-        run: cargo build --release
+        run: cargo build --release -vv
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
