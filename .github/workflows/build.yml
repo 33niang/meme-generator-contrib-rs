@@ -1,83 +1,36 @@
-name: Build
+name: Compile Contrib Library for Rust 1.85.0
 
+# 这个 workflow 可以在 push 代码时自动触发，也可以手动触发
 on:
   push:
-    branches:
-      - main
-    paths:
-      - "Cargo.toml"
-      - "src/**"
-  pull_request_target:
-    paths:
-      - "Cargo.toml"
-      - "src/**"
   workflow_dispatch:
-
-permissions:
-  contents: read
 
 jobs:
   build:
-    runs-on: ${{ matrix.platform.runner }}
-    strategy:
-      matrix:
-        platform:
-          - runner: windows-latest
-            target: x86_64-pc-windows-msvc
-            label: windows-x86_64
-          - runner: macos-latest
-            target: x86_64-apple-darwin
-            label: macos-x86_64
-          - runner: macos-latest
-            target: aarch64-apple-darwin
-            label: macos-aarch64
+    # 使用和您服务器一致的 Ubuntu 最新环境
+    runs-on: ubuntu-latest
 
     steps:
+      # 第一步：获取仓库的源代码
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@1.88.0
-      - uses: swatinem/rust-cache@v2
 
-      - name: Rustup add target
-        run: rustup target add ${{ matrix.platform.target }}
-
-      - name: Build target
-        run: cargo build --release --target ${{ matrix.platform.target }}
-
-      - uses: actions/upload-artifact@v4
+      # 第二步：安装指定版本的 Rust 工具链
+      # 这是最关键的一步，我们在这里指定了版本为 1.85.0
+      - uses: actions-rs/toolchain@v1
         with:
-          name: "meme-generator-contrib-${{ matrix.platform.label }}"
-          path: |
-            target/${{ matrix.platform.target }}/release/*.dll
-            target/${{ matrix.platform.target }}/release/*.dylib
+          profile: minimal
+          toolchain: 1.85.0
+          override: true
 
-  build_linux:
-    runs-on: ${{ matrix.platform.runner }}
-    container: ${{ matrix.platform.container }}
-    strategy:
-      matrix:
-        platform:
-          - runner: ubuntu-latest
-            container: ghcr.io/memecrafters/meme-generator-build-container:latest
-            target: x86_64-unknown-linux-gnu
-            label: linux-x86_64
-          - runner: ubuntu-24.04-arm
-            container: ghcr.io/memecrafters/meme-generator-build-container:arm64
-            target: aarch64-unknown-linux-gnu
-            label: linux-aarch64
+      # 第三步：使用 cargo 命令进行编译
+      - name: Build
+        run: cargo build --release
 
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@1.88.0
-      - uses: swatinem/rust-cache@v2
-
-      - name: Rustup add target
-        run: rustup target add ${{ matrix.platform.target }}
-
-      - name: Build target
-        run: cargo build --release --target ${{ matrix.platform.target }}
-
-      - uses: actions/upload-artifact@v4
+      # 第四步：将编译好的 .so 文件打包上传，方便下载
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: "meme-generator-contrib-${{ matrix.platform.label }}"
-          path: |
-            target/${{ matrix.platform.target }}/release/*.so
+          # 打包后的文件名
+          name: libmeme-generator-contrib-so-1.85.0
+          # 要打包的文件的路径
+          path: target/release/libmeme_generator_contrib.so
