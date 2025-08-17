@@ -6,28 +6,25 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # 使用一个更通用的旧版本 Ubuntu 环境进行编译
+    runs-on: ubuntu-20.04
 
     steps:
-      # 第一步：获取源代码
+      # ... 后面的内容保持不变 ...
       - uses: actions/checkout@v4
 
-      # 新增步骤：安装 fontconfig 和 freetype 的开发库
       - name: Install system dependencies
         run: sudo apt-get update && sudo apt-get install -y libfontconfig1-dev libfreetype6-dev
 
-      # 第二步：安装指定版本的 Rust 工具链
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: 1.85.0
           override: true
 
-      # 第三步：进行编译
       - name: Build
         run: cargo build --release
 
-      # 第四步：打包上传 .so 文件
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
