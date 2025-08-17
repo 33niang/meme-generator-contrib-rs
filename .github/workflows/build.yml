@@ -1,36 +1,35 @@
 name: Compile Contrib Library for Rust 1.85.0
 
-# 这个 workflow 可以在 push 代码时自动触发，也可以手动触发
 on:
   push:
   workflow_dispatch:
 
 jobs:
   build:
-    # 使用和您服务器一致的 Ubuntu 最新环境
     runs-on: ubuntu-latest
 
     steps:
-      # 第一步：获取仓库的源代码
+      # 第一步：获取源代码
       - uses: actions/checkout@v4
 
+      # 新增步骤：安装 fontconfig 和 freetype 的开发库
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libfontconfig1-dev libfreetype6-dev
+
       # 第二步：安装指定版本的 Rust 工具链
-      # 这是最关键的一步，我们在这里指定了版本为 1.85.0
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: 1.85.0
           override: true
 
-      # 第三步：使用 cargo 命令进行编译
+      # 第三步：进行编译
       - name: Build
         run: cargo build --release
 
-      # 第四步：将编译好的 .so 文件打包上传，方便下载
+      # 第四步：打包上传 .so 文件
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          # 打包后的文件名
           name: libmeme-generator-contrib-so-1.85.0
-          # 要打包的文件的路径
           path: target/release/libmeme_generator_contrib.so
