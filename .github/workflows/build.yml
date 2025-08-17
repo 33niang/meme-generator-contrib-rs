@@ -1,4 +1,4 @@
-name: Compile Contrib Library for Rust 1.85.0
+name: Compile Contrib Library for Rust 1.85.0 on Ubuntu 22.04
 
 on:
   push:
@@ -6,7 +6,8 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    # 关键改动：指定与您服务器完全一致的 Ubuntu 22.04 版本
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v4
@@ -20,12 +21,11 @@ jobs:
           toolchain: 1.85.0
           override: true
 
-      # 在编译命令后添加 -vv 参数以获取详细日志
       - name: Build
-        run: cargo build --release -vv
+        run: cargo build --release
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: libmeme-generator-contrib-so-1.85.0
+          name: libmeme-generator-contrib-so-ubuntu22.04
           path: target/release/libmeme_generator_contrib.so
