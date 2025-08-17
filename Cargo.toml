@@ -7,7 +7,7 @@ license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/MemeCrafters/meme-generator-contrib-rs"
 repository = "https://github.com/MemeCrafters/meme-generator-contrib-rs"
-edition = "2024"
+edition = "2021"
 
 [lib]
 crate-type = ["cdylib"]
